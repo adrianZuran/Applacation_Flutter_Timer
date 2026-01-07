@@ -61,6 +61,12 @@ class _TimerHomePageState extends State<TimerHomePage> with TickerProviderStateM
 
   // Fungsi saat waktu habis
   void _onTimerFinished() {
+    // Setelah timer selesai, kembalikan nilai controller ke 1.0
+    // supaya ketika user menekan play lagi, animasi bisa reverse dari penuh.
+    _controller.stop();
+    _controller.forward(from: 1.0);
+    _controller.stop();
+
     setState(() => _isRunning = false);
     _setAndroidAlarm(); // Panggil fungsi alarm sistem
     
@@ -100,10 +106,15 @@ class _TimerHomePageState extends State<TimerHomePage> with TickerProviderStateM
     final total = (m * 60) + s;
 
     if (total > 0) {
+      // Pastikan controller tidak sedang jalan sebelum mengubah durasi.
+      _controller.stop();
       setState(() {
         _controller.duration = Duration(seconds: total);
         _controller.reset();
-        _controller.value = 1.0; // Set lingkaran penuh
+        // Gunakan sistem animasi untuk memposisikan ke 1.0,
+        // bukan mengubah value secara langsung.
+        _controller.forward(from: 1.0);
+        _controller.stop();
         _isRunning = false;
       });
     }
